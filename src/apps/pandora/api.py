@@ -31,7 +31,7 @@ class Pandora(PandoraBase):
         if await self._check_auth():
             await self._send_command(8)
 
-    async def heater_on(self):
+    async def start_heater(self):
         if await self._check_auth():
             await self._send_command(21)
 
