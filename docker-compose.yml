@@ -9,4 +9,4 @@ services:
     environment:
       APP_CONFIG__DB__ECHO: 0
     env_file:
-      - ./src/..env
+      - ./src/.env
