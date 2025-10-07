@@ -6,6 +6,7 @@ async def _send_msg(text: str):
     await bot.send_message(
         text=text,
         chat_id=settings.telegram.admin_chat_id,
+        parse_mode="MarkdownV2",
     )
 
 
@@ -53,7 +54,8 @@ async def msg_ready(state: PandoraState):
 async def msg_normal_start(state: PandoraState):
     text = (
         f"☀️ **Обычный запуск:**\n"
-        f"(Улица: {state.out_temp}°C, Двигатель: {state.engine_temp_before}°C).\n"
+        f"Улица: {state.out_temp}°C\n"
+        f"Двигатель: {state.engine_temp_before}°C.\n"
         f"Запуск двигателя без предварительного прогрева."
     )
     await _send_msg(text)
