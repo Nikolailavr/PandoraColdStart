@@ -12,7 +12,7 @@ class ColdStart:
     def __init__(self):
         self.pandora: Optional[Pandora] = None
         self.heater_on = False
-        self.__test = True
+        self.__test = False
 
     async def begin(self):
         logger.info("Начало процедуры холодного запуска")
@@ -73,10 +73,9 @@ class ColdStart:
                         logger.warning(
                             "Не удалось достичь безопасной температуры для запуска двигателя"
                         )
-
             else:
                 logger.info(
-                    "Условия холодного запуска не выполнены — запуск двигателя без прогрева"
+                    "Условия теплого запуска — запуск двигателя без прогрева"
                 )
                 await tg_msg.msg_normal_start(self.pandora.state)
                 if not self.__test:
