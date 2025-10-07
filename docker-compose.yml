@@ -1,0 +1,12 @@
+services:
+  bot:
+    build:
+      dockerfile: ./docker-build/Dockerfile_bot
+      context: ./
+    ports:
+      - "8005:8000"
+    container_name: pandora_bot
+    environment:
+      APP_CONFIG__DB__ECHO: 0
+    env_file:
+      - ./src/..env
