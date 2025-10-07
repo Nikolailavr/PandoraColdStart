@@ -6,15 +6,22 @@ from apps.pandora.base import PandoraBase
 logger = logging.getLogger(__name__)
 
 
-class Pandora(PandoraBase):
+class PandoraState:
+    """Объект для хранения состояния Pandora."""
 
     def __init__(self):
-        super().__init__()
-        self.engine_temp_before = None
-        self.voltage_before = None
         self.engine_temp = None
         self.out_temp = None
         self.voltage = None
+        self.engine_temp_before = None
+        self.voltage_before = None
+        self.count = None
+
+
+class Pandora(PandoraBase):
+    def __init__(self):
+        super().__init__()
+        self.state = PandoraState()
 
     async def start_engine(self):
         if await self._check_auth():
@@ -31,6 +38,7 @@ class Pandora(PandoraBase):
     async def check(self):
         if await self._check_auth():
             await self._send_command(255)
+            await asyncio.sleep(5)
             data = await self._get_updates()
             await self._set_params(data)
 
@@ -43,15 +51,15 @@ class Pandora(PandoraBase):
         device_stats = stats.get(str(self._device_id), {})
 
         # Берём нужные параметры
-        self.engine_temp = device_stats.get("engine_temp")
-        self.out_temp = device_stats.get("out_temp")
-        self.voltage = device_stats.get("voltage")
+        self.state.engine_temp = device_stats.get("engine_temp")
+        self.state.out_temp = device_stats.get("out_temp")
+        self.state.voltage = device_stats.get("voltage")
 
         logger.debug(
             "Обновлены параметры: engine_temp=%s, out_temp=%s, voltage=%s",
-            self.engine_temp,
-            self.out_temp,
-            self.voltage,
+            self.state.engine_temp,
+            self.state.out_temp,
+            self.state.voltage,
         )
 
 

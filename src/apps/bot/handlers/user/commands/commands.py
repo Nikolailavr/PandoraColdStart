@@ -6,6 +6,7 @@ from aiogram.types import Message
 
 from apps.algoritm import ColdStart
 from apps.bot.handlers.user.keyboards.main import start_keyboard
+from core import settings
 
 router = Router()
 logger = logging.getLogger(__name__)
@@ -23,6 +24,8 @@ async def cmd_start(msg: Message):
 # --- Обработчик кнопки ---
 @router.message(F.text == "🚗 Старт двигателя")
 async def cmd_engine_start(msg: Message):
+    if msg.from_user.id != settings.telegram.admin_chat_id:
+        return
     await msg.answer("⏳ Начинаю процедуру холодного запуска...")
 
     try:
