@@ -52,17 +52,17 @@ class ColdStart:
                         self.pandora.start_engine()
                 else:
                     count = 0
-                    while self.pandora.engine_temp < 20 and count < 15:
+                    while self.pandora.state.engine_temp < 20 and count < 15:
                         count += 1
                         await self.pandora.check()
                         logger.info(
-                            f"Температура двигателя: {self.pandora.engine_temp}°C — ждём прогрева"
+                            f"Температура двигателя: {self.pandora.state.engine_temp}°C — ждём прогрева"
                         )
                         await tg_msg.msg_wait(self.pandora.state)
                         await asyncio.sleep(120)
 
                     # Проверка и запуск двигателя
-                    if self.pandora.engine_temp >= 20:
+                    if self.pandora.state.engine_temp >= 20:
                         logger.info(
                             "Двигатель достиг безопасной температуры — запускаем"
                         )
