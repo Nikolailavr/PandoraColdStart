@@ -38,7 +38,7 @@ class Pandora(PandoraBase):
     async def check(self):
         if await self._check_auth():
             await self._send_command(255)
-            await asyncio.sleep(5)
+            await asyncio.sleep(3)
             data = await self._get_updates()
             await self._set_params(data)
 

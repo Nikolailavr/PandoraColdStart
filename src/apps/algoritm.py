@@ -39,27 +39,27 @@ class ColdStart:
                 await tg_msg.msg_cold_start()
 
                 # Включение подогревателя
-                count = 0
-                while count < 3 and not self.heater_on:
-                    count += 1
-                    logger.info(f"Попытка включения подогревателя ({count}/3)")
+                self.pandora.state.count = 0
+                while self.pandora.state.count < 3 and not self.heater_on:
+                    self.pandora.state.count += 1
+                    logger.info(f"Попытка включения подогревателя ({self.pandora.state.count}/3)")
                     await self._start_heater()
 
                 # Ожидание прогрева двигателя до 30°C
-                if count == 3 or not self.heater_on:
+                if self.pandora.state.count == 3 or not self.heater_on:
                     await tg_msg.msg_start_wo_heater(self.pandora.state)
                     if not self.__test:
                         self.pandora.start_engine()
                 else:
-                    count = 0
-                    while self.pandora.state.engine_temp < 20 and count < 15:
-                        count += 1
-                        await self.pandora.check()
+                    self.pandora.state.count = 0
+                    while self.pandora.state.engine_temp < 20 and self.pandora.state.count < 15:
+                        self.pandora.state.count += 1
                         logger.info(
                             f"Температура двигателя: {self.pandora.state.engine_temp}°C — ждём прогрева"
                         )
                         await tg_msg.msg_wait(self.pandora.state)
                         await asyncio.sleep(120)
+                        await self.pandora.check()
 
                     # Проверка и запуск двигателя
                     if self.pandora.state.engine_temp >= 20:
