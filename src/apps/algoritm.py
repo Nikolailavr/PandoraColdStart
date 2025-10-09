@@ -42,7 +42,9 @@ class ColdStart:
                 self.pandora.state.count = 0
                 while self.pandora.state.count < 3 and not self.heater_on:
                     self.pandora.state.count += 1
-                    logger.info(f"Попытка включения подогревателя ({self.pandora.state.count}/3)")
+                    logger.info(
+                        f"Попытка включения подогревателя ({self.pandora.state.count}/3)"
+                    )
                     await self._start_heater()
 
                 # Ожидание прогрева двигателя до 30°C
@@ -52,7 +54,10 @@ class ColdStart:
                         self.pandora.start_engine()
                 else:
                     self.pandora.state.count = 0
-                    while self.pandora.state.engine_temp < 20 and self.pandora.state.count < 15:
+                    while (
+                        self.pandora.state.engine_temp < 20
+                        and self.pandora.state.count < 15
+                    ):
                         self.pandora.state.count += 1
                         logger.info(
                             f"Температура двигателя: {self.pandora.state.engine_temp}°C — ждём прогрева"
