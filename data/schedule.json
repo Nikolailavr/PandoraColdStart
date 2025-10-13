@@ -1,0 +1,30 @@
+{
+    "mon": {
+        "enabled": true,
+        "time": "07:25"
+    },
+    "tue": {
+        "enabled": true,
+        "time": "07:25"
+    },
+    "wed": {
+        "enabled": true,
+        "time": "07:25"
+    },
+    "thu": {
+        "enabled": true,
+        "time": "07:25"
+    },
+    "fri": {
+        "enabled": true,
+        "time": "07:25"
+    },
+    "sat": {
+        "enabled": false,
+        "time": null
+    },
+    "sun": {
+        "enabled": false,
+        "time": null
+    }
+}

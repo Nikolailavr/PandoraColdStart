@@ -15,25 +15,25 @@ logger = logging.getLogger(__name__)
 # --- Обработчик команды /start ---
 @router.message(Command("start"))
 async def cmd_start(msg: Message):
-    await msg.answer(
-        "Привет! 👋\nНажми кнопку ниже, чтобы выполнить холодный запуск двигателя.",
-        reply_markup=start_keyboard,
-    )
+    if msg.from_user.id in settings.telegram.admin_chat_ids:
+        await msg.answer(
+            "Привет! 👋\nНажми кнопку ниже, чтобы выполнить холодный запуск двигателя.",
+            reply_markup=start_keyboard,
+        )
 
 
 # --- Обработчик кнопки ---
 @router.message(F.text == "🚗 Старт двигателя")
 async def cmd_engine_start(msg: Message):
-    if msg.from_user.id != settings.telegram.admin_chat_id:
-        return
-    await msg.answer("⏳ Начинаю процедуру холодного запуска...")
+    if msg.from_user.id in settings.telegram.admin_chat_ids:
+        await msg.answer("⏳ Начинаю процедуру холодного запуска...")
 
-    try:
-        await ColdStart().begin()
-        await msg.answer("✅ Процедура холодного запуска завершена.")
-    except Exception as e:
-        logger.exception("Ошибка при холодном запуске: %s", e)
-        await msg.answer("⚠️ Произошла ошибка при запуске двигателя.")
+        try:
+            await ColdStart().begin()
+            await msg.answer("✅ Процедура холодного запуска завершена.")
+        except Exception as e:
+            logger.exception("Ошибка при холодном запуске: %s", e)
+            await msg.answer("⚠️ Произошла ошибка при запуске двигателя.")
 
 
 def register_users_handlers(dp: Dispatcher) -> None:

@@ -1,9 +1,9 @@
 import logging
 from pathlib import Path
-from typing import Literal
+from typing import Literal, List
 
 from aiogram import Bot
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -33,8 +33,18 @@ class LoggingConfig(BaseModel):
 
 class Telegram(BaseModel):
     token: str
-    admin_chat_id: int
-    bot_username: str = "OzonPricesBot"
+    admin_chat_ids: List[int]
+
+    @field_validator("admin_chat_ids", mode="before")
+    def parse_admin_ids(cls, v):
+        if isinstance(v, str):
+            v = v.strip()
+            if v.startswith("["):  # JSON
+                import json
+
+                return json.loads(v)
+            return [int(x.strip()) for x in v.split(",") if x.strip()]
+        return v
 
 
 class Pandora(BaseModel):
@@ -59,7 +69,6 @@ class Settings(BaseSettings):
     logging: LoggingConfig = LoggingConfig()
     pandora: Pandora
     telegram: Telegram
-    # schedule: Schedule
 
 
 settings = Settings()

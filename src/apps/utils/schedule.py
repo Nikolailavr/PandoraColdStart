@@ -1,5 +1,6 @@
 import asyncio
 import logging
+from pytz import timezone
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from pathlib import Path
@@ -12,8 +13,7 @@ logger = logging.getLogger(__name__)
 # --- Настройки ---
 SCHEDULE_FILE = Path("/src/data/schedule.json")  # путь к JSON с расписанием
 
-scheduler = AsyncIOScheduler()
-scheduler.start()
+scheduler = AsyncIOScheduler(timezone=timezone("Asia/Tomsk"))
 
 
 # --- Вспомогательные функции ---
@@ -47,6 +47,11 @@ async def run_cold_start():
     await cs.begin()
 
 
+def schedule_cold_start():
+    loop = asyncio.get_running_loop()
+    loop.create_task(run_cold_start())
+
+
 # --- Планирование задач ---
 def schedule_all_tasks():
     """Создаёт или обновляет все задачи планировщика на основании JSON"""
@@ -66,7 +71,7 @@ def schedule_all_tasks():
         if data.get("enabled") and data.get("time"):
             hour, minute = map(int, data["time"].split(":"))
             scheduler.add_job(
-                lambda: asyncio.create_task(run_cold_start()),
+                run_cold_start,
                 "cron",
                 day_of_week=day[:3],  # 'mon', 'tue', ...
                 hour=hour,
