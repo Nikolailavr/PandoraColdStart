@@ -12,6 +12,8 @@ LOG_DEFAULT_FORMAT = (
     "[%(asctime)s] | %(module)20s:%(lineno)-4d | %(levelname)-8s - %(message)s"
 )
 
+SCHEDULE_FILE = BASE_DIR / "data/schedule.json"
+
 
 class LoggingConfig(BaseModel):
     log_level: Literal[

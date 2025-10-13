@@ -5,7 +5,7 @@ from aiogram.filters import Command
 from aiogram.types import Message
 
 from apps.algoritm import ColdStart
-from apps.bot.handlers.user.keyboards.main import start_keyboard
+from apps.bot.keyboards.main import start_keyboard
 from core import settings
 
 router = Router()
