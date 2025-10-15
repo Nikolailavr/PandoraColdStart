@@ -11,10 +11,10 @@ logger = logging.getLogger(__name__)
 
 
 class ColdStart:
-    def __init__(self):
+    def __init__(self, test: bool = False):
         self.pandora: Optional[Pandora] = None
         self.heater_on = False
-        self.__test = False
+        self.__test = test
         self.heater_retries = 2
 
     # ---------------------------
@@ -206,7 +206,7 @@ class ColdStart:
 
 # Пример использования
 async def _test():
-    await ColdStart().begin()
+    await ColdStart(test=True).begin()
 
 
 if __name__ == "__main__":
