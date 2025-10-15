@@ -1,3 +1,4 @@
+import asyncio
 import logging
 import aiohttp
 from typing import Optional, Dict, Any
@@ -157,43 +158,100 @@ class PandoraBase:
         json_data: Optional[Dict[str, Any]] = None,
         data: Optional[Dict[str, Any]] = None,
         params: Optional[Dict[str, Any]] = None,
+        retries: int = 3,
     ) -> Dict[str, Any]:
-        """Выполняет запрос к Pandora API с автологином и подстановкой cookies."""
+        """Запрос к Pandora API с авторизацией и повтором при временных ошибках."""
         await self._ensure_session()
 
-        # Проверяем, активна ли сессия; если нет — логинимся
-        if not self._cookies or not await self._is_alive():
-            logger.debug("Сессия недействительна — выполняем повторный логин...")
-            await self._login_name()
+        for attempt in range(1, retries + 2):  # 1 основная + N повторов
+            # Проверяем валидность сессии
+            if not self._cookies or not await self._is_alive():
+                logger.debug("Сессия недействительна — логинимся заново")
+                await self._login_name()
 
-        url = f"{self.__BASE_URL.rstrip('/')}/{path.lstrip('/')}"
+            url = f"{self.__BASE_URL.rstrip('/')}/{path.lstrip('/')}"
 
-        async with self._session.request(
-            method.upper(),
-            url,
-            json=json_data,
-            data=data,
-            params=params,
-            cookies=self._cookies,
-            headers=self.__BASE_HEADERS,  # добавлено
-        ) as resp:
-            text = await resp.text()
             try:
-                result = await resp.json()
-            except Exception:
-                logger.error("Ответ не JSON (%s): %s", resp.status, text)
+                async with self._session.request(
+                    method.upper(),
+                    url,
+                    json=json_data,
+                    data=data,
+                    params=params,
+                    cookies=self._cookies,
+                    headers=self.__BASE_HEADERS,
+                ) as resp:
+                    text = await resp.text()
+                    try:
+                        result = await resp.json()
+                    except Exception:
+                        logger.error("Ответ не JSON (%s): %s", resp.status, text)
+                        raise
+
+                    # --- Обработка ошибок ---
+                    if resp.status >= 400 or (
+                        isinstance(result, dict) and result.get("status") == "fail"
+                    ):
+                        logger.warning(
+                            "Ошибка запроса (%s %s): %s — попытка %d/%d",
+                            method,
+                            url,
+                            result,
+                            attempt,
+                            retries + 1,
+                        )
+
+                        # 1️⃣ Ошибка сессии
+                        if isinstance(result, dict) and result.get("status") in {
+                            "sid-expired",
+                            "invalid session id",
+                        }:
+                            await self._login_name()
+                            if attempt <= retries:
+                                await asyncio.sleep(1)
+                                continue
+
+                        # 2️⃣ Ошибка GSM (временная) — повтор через 5 сек
+                        if (
+                            isinstance(result, dict)
+                            and result.get("error_text") == "GSM is unreachable"
+                        ):
+                            if attempt <= retries:
+                                logger.info("GSM недоступен — повтор через 5 секунд...")
+                                await asyncio.sleep(5)
+                                continue
+
+                        # 3️⃣ Серверная ошибка (5xx) — повтор через 2 сек
+                        if 500 <= resp.status < 600 and attempt <= retries:
+                            await asyncio.sleep(2)
+                            continue
+
+                        # 4️⃣ Ошибка клиента (400) — повтор через 5 сек
+                        if resp.status == 400 and attempt <= retries:
+                            logger.info("Ошибка 400 — пробуем снова через 5 секунд...")
+                            await asyncio.sleep(5)
+                            continue
+
+                        # Если все попытки исчерпаны
+                        raise aiohttp.ClientResponseError(
+                            request_info=resp.request_info,
+                            history=resp.history,
+                            status=resp.status,
+                            message=str(result),
+                        )
+
+                    return result  # успешный ответ
+
+            except aiohttp.ClientError as e:
+                logger.warning(
+                    "Ошибка соединения: %s (попытка %d/%d)", e, attempt, retries + 1
+                )
+                if attempt <= retries:
+                    await asyncio.sleep(2)
+                    continue
                 raise
 
-            if resp.status >= 400:
-                logger.error("Ошибка запроса %s %s: %s", method, url, result)
-                raise aiohttp.ClientResponseError(
-                    status=resp.status,
-                    request_info=resp.request_info,
-                    history=resp.history,
-                    message=str(result),
-                )
-
-            return result
+        raise RuntimeError("Не удалось выполнить запрос после всех попыток")
 
     async def _check_auth(self):
         self._auth_ok = await self._is_alive()

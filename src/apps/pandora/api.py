@@ -16,6 +16,7 @@ class PandoraState:
         self.engine_temp_before = None
         self.voltage_before = None
         self.count = None
+        self.engine_on = None
 
 
 class Pandora(PandoraBase):
@@ -54,6 +55,7 @@ class Pandora(PandoraBase):
         self.state.engine_temp = device_stats.get("engine_temp")
         self.state.out_temp = device_stats.get("out_temp")
         self.state.voltage = device_stats.get("voltage")
+        self.state.engine_on = device_stats.get("engine_rpm") > 100
 
         logger.debug(
             "Обновлены параметры: engine_temp=%s, out_temp=%s, voltage=%s",

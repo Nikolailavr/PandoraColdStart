@@ -4,6 +4,8 @@ from typing import Optional
 
 from apps.pandora.api import Pandora
 import core.tg_msg as tg_msg
+from core import settings
+from core.config import bot
 
 logger = logging.getLogger(__name__)
 
@@ -30,7 +32,14 @@ class ColdStart:
                 f"Напряжение аккумулятора: {self.pandora.state.voltage_before}V"
             )
             await tg_msg.msg_params(self.pandora.state)
-
+            if self.pandora.state.engine_on:
+                text = "Двигатель уже запущен"
+                logger.info(text)
+                await bot.send_message(
+                    text=text,
+                    chat_id=settings.telegram.admin_chat_id,
+                )
+                return
             if (
                 self.pandora.state.out_temp <= 5
                 and self.pandora.state.engine_temp_before < 30
