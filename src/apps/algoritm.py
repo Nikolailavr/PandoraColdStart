@@ -103,7 +103,7 @@ class ColdStart:
     async def _check_heater(self) -> bool:
         self.heater_on = False
         await self.pandora.check()
-        if self.pandora.state.voltage_before > self.pandora.state.voltage:
+        if (self.pandora.state.voltage_before - self.pandora.state.voltage) >= 0.2:
             self.heater_on = True
             logger.info("Подогреватель работает корректно")
         else:

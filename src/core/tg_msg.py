@@ -12,7 +12,7 @@ async def _send_msg(text: str):
 
 async def msg_wait(state: PandoraState):
     """Сообщение о текущем прогреве."""
-    text = f"🌡️ Прогрев: {state.engine_temp}°C (попытка {state.count}/10)"
+    text = f"🌡️ Прогрев: {state.engine_temp}°C (попытка {state.count}/15)"
     await _send_msg(text)
 
 
