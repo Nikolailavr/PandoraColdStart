@@ -5,7 +5,7 @@ from core.config import bot, settings
 async def _send_msg(text: str):
     await bot.send_message(
         text=text,
-        chat_id=settings.telegram.admin_chat_id,
+        chat_id=settings.telegram.chat_id,
         parse_mode="HTML",
     )
 

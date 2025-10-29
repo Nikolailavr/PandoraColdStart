@@ -34,7 +34,7 @@ class LoggingConfig(BaseModel):
 class Telegram(BaseModel):
     token: str
     admin_chat_ids: List[int]
-    admin_chat_id: int
+    chat_id: int
 
     @field_validator("admin_chat_ids", mode="before")
     def parse_admin_ids(cls, v):

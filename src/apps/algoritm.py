@@ -189,7 +189,7 @@ class ColdStart:
     @staticmethod
     async def _notify(text: str):
         logger.info(text)
-        await bot.send_message(chat_id=settings.telegram.admin_chat_id, text=text)
+        await bot.send_message(chat_id=settings.telegram.chat_id, text=text)
 
     def _log_state(self):
         s = self.pandora.state
