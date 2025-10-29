@@ -45,14 +45,13 @@ async def handle_forwarded_message(msg: Message):
         response = "📨 Информация о пересланном сообщении:\n\n"
 
         # Если сообщение переслано из канала/группы
-        if msg.forward_from_chat:
-            response += f"🆔 ID чата/канала: `{msg.forward_from_chat.id}`\n"
-            response += f"📋 Тип: {msg.forward_from_chat.type}\n"
-            response += f"🏷️ Название: {msg.forward_from_chat.title}\n"
+        response += f"🆔 ID чата/канала: `{msg.forward_from_chat.id}`\n"
+        response += f"📋 Тип: {msg.forward_from_chat.type}\n"
+        response += f"🏷️ Название: {msg.forward_from_chat.title}\n"
 
-            # ID оригинального сообщения в том чате/канале
-            if msg.forward_from_message_id:
-                response += f"💬 ID сообщения в исходном чате: `{msg.forward_from_message_id}`\n"
+        # ID оригинального сообщения в том чате/канале
+        if msg.forward_from_message_id:
+            response += f"💬 ID сообщения в исходном чате: `{msg.forward_from_message_id}`\n"
 
         # Если сообщение переслано от пользователя
         if msg.forward_from:
