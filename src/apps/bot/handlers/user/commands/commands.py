@@ -36,7 +36,7 @@ async def cmd_engine_start(msg: Message):
             await msg.answer("⚠️ Произошла ошибка при запуске двигателя.")
 
 
-@router.message(F.reply_to_message)
+@router.message(F.forward_from | F.forward_from_chat)
 async def handle_forwarded_message(msg: Message):
     if msg.from_user.id not in settings.telegram.admin_chat_ids:
         return
