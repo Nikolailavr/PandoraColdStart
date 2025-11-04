@@ -106,7 +106,7 @@ class ColdStart:
     async def _wait_for_warmup(self):
         self.pandora.state.count = 0
         start_temp = self.pandora.state.engine_temp
-
+        temp_engine = self.pandora.state.engine_temp
         while self.pandora.state.engine_temp < 20 and self.pandora.state.count < 15:
             self.pandora.state.count += 1
 
@@ -116,11 +116,20 @@ class ColdStart:
                     "✅ Двигатель уже запущен, прекращаю ожидание прогрева"
                 )
                 return
-            # Проверка через 5 циклов
-            if self.pandora.state.count == 5:
+            # Проверка через 4 цикла
+            if self.pandora.state.count == 4:
                 await self._second_check_heater(start_temp)
 
+            if self.pandora.state.count > 7:
+                if self.pandora.state.engine_temp == temp_engine:
+                    await self._notify(
+                        "🚗 Подогреватель не включился — выполняем запуск двигателя"
+                    )
+                    await self._safe_start_engine()
+                    return
+
             await self._log_wait_state()
+            temp_engine = self.pandora.state.engine_temp
             await asyncio.sleep(120)
             await self.pandora.check()
 
