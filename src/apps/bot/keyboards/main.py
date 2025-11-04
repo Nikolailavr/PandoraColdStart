@@ -4,6 +4,7 @@ start_keyboard = ReplyKeyboardMarkup(
     keyboard=[
         [
             KeyboardButton(text="🚗 Старт двигателя"),
+            KeyboardButton(text="Состояние"),
             KeyboardButton(text="🕒 Расписание"),
         ],
     ],

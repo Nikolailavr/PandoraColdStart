@@ -6,7 +6,8 @@ from aiogram.types import Message
 
 from apps.algoritm import ColdStart
 from apps.bot.keyboards.main import start_keyboard
-from core import settings
+from apps.pandora.api import Pandora
+from core import settings, tg_msg
 
 router = Router()
 logger = logging.getLogger(__name__)
@@ -20,6 +21,18 @@ async def cmd_start(msg: Message):
             "Привет! 👋\nНажми кнопку ниже, чтобы выполнить холодный запуск двигателя.",
             reply_markup=start_keyboard,
         )
+
+
+@router.message(F.text == "Состояние")
+async def __check_car(msg: Message):
+    if msg.from_user.id in settings.telegram.admin_chat_ids:
+        try:
+            pandora = Pandora()
+            await pandora.check()
+            await tg_msg.msg_params(pandora.state)
+        except Exception as e:
+            logger.exception("Ошибка при запросе состояния", e)
+            await msg.answer("⚠️ Произошла ошибка при запросе состояния.")
 
 
 # --- Обработчик кнопки ---
