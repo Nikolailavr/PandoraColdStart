@@ -116,12 +116,11 @@ class ColdStart:
                     "✅ Двигатель уже запущен, прекращаю ожидание прогрева"
                 )
                 return
-            # Проверка через 4 цикла
-            if self.pandora.state.count == 4:
-                await self._second_check_heater(start_temp)
 
-            if self.pandora.state.count > 7:
-                if self.pandora.state.engine_temp == temp_engine:
+            if self.pandora.state.engine_temp == temp_engine:
+                if self.pandora.state.count == 4:
+                    await self._second_check_heater(start_temp)
+                elif self.pandora.state.count > 7:
                     await self._notify(
                         "🚗 Подогреватель не включился — выполняем запуск двигателя"
                     )
