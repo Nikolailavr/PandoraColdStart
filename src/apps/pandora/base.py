@@ -211,25 +211,27 @@ class PandoraBase:
                                 await asyncio.sleep(1)
                                 continue
 
-                        # 2️⃣ Ошибка GSM (временная) — повтор через 5 сек
+                        # 2️⃣ Ошибка GSM (временная) — повтор через 60 сек
                         if (
                             isinstance(result, dict)
                             and result.get("error_text") == "GSM is unreachable"
                         ):
                             if attempt <= retries:
-                                logger.info("GSM недоступен — повтор через 5 секунд...")
-                                await asyncio.sleep(5)
+                                logger.info(
+                                    "GSM недоступен — повтор через 60 секунд..."
+                                )
+                                await asyncio.sleep(60)
                                 continue
 
-                        # 3️⃣ Серверная ошибка (5xx) — повтор через 2 сек
+                        # 3️⃣ Серверная ошибка (5xx) — повтор через 20 сек
                         if 500 <= resp.status < 600 and attempt <= retries:
-                            await asyncio.sleep(2)
+                            await asyncio.sleep(20)
                             continue
 
-                        # 4️⃣ Ошибка клиента (400) — повтор через 5 сек
+                        # 4️⃣ Ошибка клиента (400) — повтор через 60 сек
                         if resp.status == 400 and attempt <= retries:
-                            logger.info("Ошибка 400 — пробуем снова через 5 секунд...")
-                            await asyncio.sleep(5)
+                            logger.info("Ошибка 400 — пробуем снова через 60 секунд...")
+                            await asyncio.sleep(60)
                             continue
 
                         # Если все попытки исчерпаны

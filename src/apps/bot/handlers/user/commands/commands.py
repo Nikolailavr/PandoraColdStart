@@ -46,7 +46,7 @@ async def cmd_engine_start(msg: Message):
             await msg.answer("✅ Процедура холодного запуска завершена.")
         except Exception as e:
             logger.exception("Ошибка при холодном запуске: %s", e)
-            await msg.answer("⚠️ Произошла ошибка при запуске двигателя.")
+            await msg.answer("⚠️ Произошла ошибка на сервере")
 
 
 @router.message(F.forward_from | F.forward_from_chat)
