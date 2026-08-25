@@ -1,8 +1,14 @@
+import logging
+
 from fastapi import APIRouter, Depends, HTTPException, Query, Security
 from fastapi.security import APIKeyHeader
 from starlette.status import HTTP_403_FORBIDDEN
 
+from apps.pandora.api import Pandora
+from core import tg_msg
 from core.config import settings
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(tags=["HA Bridge"])
 
@@ -24,7 +30,12 @@ async def verify_api_key(
 @router.get("/send", dependencies=[Depends(verify_api_key)])
 async def send_command(cmd: str = Query(..., description="Команда для отправки")):
     print(f"Авторизация успешна. Выполняю команду: {cmd}")
-
+    try:
+        pandora = Pandora()
+        await pandora.check()
+        await tg_msg.msg_params(pandora.state)
+    except Exception as e:
+        logger.exception("Ошибка при запросе состояния", e)
     return {
         "status": "success",
         "message": f"Команда '{cmd}' успешно обработана",
