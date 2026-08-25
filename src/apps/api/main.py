@@ -28,7 +28,13 @@ async def verify_api_key(
 
 
 @router.get("/send", dependencies=[Depends(verify_api_key)])
-async def send_command(cmd: str = Query(..., description="Команда для отправки")):
+async def send_command(
+    # Теперь 'cmd' имеет дефолтное значение "start".
+    # Если HA передаст ?cmd=..., выполнится переданное значение. Если не передаст — будет "start".
+    cmd: str = Query(
+        default="start", description="Команда для отправки (по умолчанию: start)"
+    ),
+):
     print(f"Авторизация успешна. Выполняю команду: {cmd}")
     try:
         pandora = Pandora()
@@ -36,6 +42,7 @@ async def send_command(cmd: str = Query(..., description="Команда для 
         await tg_msg.msg_params(pandora.state)
     except Exception as e:
         logger.exception("Ошибка при запросе состояния", e)
+
     return {
         "status": "success",
         "message": f"Команда '{cmd}' успешно обработана",
