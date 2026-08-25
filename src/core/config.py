@@ -56,6 +56,9 @@ class Pandora(BaseModel):
 class Schedule(BaseModel):
     interval: int
 
+class API(BaseModel):
+    key: str
+
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
@@ -70,6 +73,7 @@ class Settings(BaseSettings):
     logging: LoggingConfig = LoggingConfig()
     pandora: Pandora
     telegram: Telegram
+    api: API
 
 
 settings = Settings()
