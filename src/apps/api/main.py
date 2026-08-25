@@ -4,9 +4,10 @@ from fastapi import APIRouter, Depends, HTTPException, Query, Security
 from fastapi.security import APIKeyHeader
 from starlette.status import HTTP_403_FORBIDDEN
 
+from apps.algoritm import ColdStart
 from apps.pandora.api import Pandora
 from core import tg_msg
-from core.config import settings
+from core.config import settings, bot
 
 logger = logging.getLogger(__name__)
 
@@ -35,13 +36,13 @@ async def send_command(
         default="start", description="Команда для отправки (по умолчанию: start)"
     ),
 ):
-    print(f"Авторизация успешна. Выполняю команду: {cmd}")
+    logger.info(f"Авторизация успешна. Выполняю команду: {cmd}")
     try:
-        pandora = Pandora()
-        await pandora.check()
-        await tg_msg.msg_params(pandora.state)
+        await ColdStart().begin()
+        await bot.send_message(chat_id=settings.telegram.chat_id, text="✅ Процедура холодного запуска завершена.")
     except Exception as e:
-        logger.exception("Ошибка при запросе состояния", e)
+        logger.exception("Ошибка при холодном запуске: %s", e)
+        await bot.send_message(chat_id=settings.telegram.chat_id, text="⚠️ Произошла ошибка на сервере")
 
     return {
         "status": "success",
