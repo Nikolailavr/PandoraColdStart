@@ -5,8 +5,6 @@ from fastapi.security import APIKeyHeader
 from starlette.status import HTTP_403_FORBIDDEN
 
 from apps.algoritm import ColdStart
-from apps.pandora.api import Pandora
-from core import tg_msg
 from core.config import settings, bot
 
 logger = logging.getLogger(__name__)
